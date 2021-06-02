@@ -2,7 +2,8 @@ import { ApolloServer, gql } from "apollo-server";
 
 const schema = gql(`
   type Query {
-    
+    getIntersections: [Intersection]
+    getRoad(roadId: String!): Road
   }
 
   type Mutation {
@@ -12,7 +13,7 @@ const schema = gql(`
   type Intersection {
     id: ID!
     name: String!
-    roads: [Road!]!
+    roads: [ID!]!
     traffic: Int!
   }
   
@@ -95,3 +96,15 @@ datasource.intersections = [
     traffic: 3000,
   },
 ];
+
+var resolvers = {
+  Query: {
+    getIntersections: (parent, args) => {
+      return datasource.intersections;
+    },
+    getRoad: (parent, args) => {
+      return datasource.roads.filter((r) => r.id === args.roadId)[0];
+    },
+  },
+  Mutation: {},
+};
