@@ -13,7 +13,7 @@ const schema = gql(`
   type Intersection {
     id: ID!
     name: String!
-    roads: [Road!]!
+    roads: [ID!]!
     traffic: Int!
   }
   
