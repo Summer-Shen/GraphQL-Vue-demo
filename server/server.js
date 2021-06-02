@@ -1,12 +1,13 @@
-import { ApolloServer, gql } from "apollo-server";
+const { ApolloServer, gql } = require("apollo-server");
 
 const schema = gql(`
   type Query {
-    
+    getIntersections: [Intersection]
+    getRoad(roadId: String!): Road
   }
 
   type Mutation {
-
+    setTraffic(intersectionId: String!, trafficInput: Int!): String
   }
 
   type Intersection {
@@ -95,3 +96,60 @@ datasource.intersections = [
     traffic: 3000,
   },
 ];
+
+var resolvers = {
+  Query: {
+    getIntersections: (parent, args, context) => {
+      let ret = [];
+      context.datasource.intersections.forEach((intersection) => {
+        let retRoads = [];
+        intersection.roads.forEach((roadId) => {
+          retRoads.push(context.datasource.roads.find((r) => r.id === roadId));
+        });
+        ret.push({
+          id: intersection.id,
+          name: intersection.name,
+          roads: retRoads,
+          traffic: intersection.traffic,
+        });
+      });
+      return ret;
+    },
+    getRoad: (parent, args, context) => {
+      return context.datasource.roads.find((r) => r.id === args.roadId);
+    },
+  },
+  Mutation: {
+    setTraffic: (parent, args, context) => {
+      let intersection = context.datasource.roads.find(
+        (i) => i.id === args.intersectionId
+      );
+      intersection.traffic = args.trafficInput;
+      return "OK";
+    },
+  },
+  Road: {
+    __resolveType: (obj, context, info) => {
+      switch (obj.type) {
+        case 0:
+          return "Highway";
+        case 1:
+          return "UrbanRoad";
+        default:
+          return null; // GraphQLError is thrown
+      }
+    },
+  },
+};
+
+const server = new ApolloServer({
+  typeDefs: schema,
+  resolvers: resolvers,
+  context: {
+    datasource,
+  },
+});
+
+server.listen(4000).then(({ url }) => {
+  console.log("GraphQL server running at localhost:4000");
+});
