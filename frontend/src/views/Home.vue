@@ -35,6 +35,30 @@
       </el-table>
     </el-main>
 
+    <el-dialog
+      title="修改交通流量"
+      :visible.sync="trafficDialogVisible"
+      width="30%"
+    >
+      <el-form>
+        <el-form-item label="交通流量">
+          <el-input-number
+            v-model="currTraffic"
+            :precision="0"
+            :step="100"
+            :min="1"
+          ></el-input-number>
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="trafficDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirmTraffic()">修改</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
     <el-dialog title="道路详情" :visible.sync="roadDialogVisible" width="30%">
       <el-form style="overflow: hidden">
         <el-form-item label="类型" size="mini">
@@ -81,6 +105,12 @@ const GET_ROAD = gql`
   }
 `;
 
+const SET_TRAFFIC = gql`
+  mutation($intersectionId: String!, $trafficInput: Int!) {
+    setTraffic(intersectionId: $intersectionId, trafficInput: $trafficInput)
+  }
+`;
+
 export default {
   name: "Home",
 
@@ -92,6 +122,8 @@ export default {
       currRoad: null,
 
       trafficDialogVisible: false,
+      currIntersectionId: null,
+      currTraffic: 0,
     };
   },
 
@@ -117,6 +149,32 @@ export default {
         .then((resp) => {
           this.currRoad = resp.data.getRoad;
         });
+    },
+
+    handleEditTraffic(id) {
+      this.trafficDialogVisible = true;
+      this.currIntersectionId = id;
+    },
+
+    confirmTraffic() {
+      this.$apollo
+        .mutate({
+          mutation: SET_TRAFFIC,
+          variables: {
+            intersectionId: this.currIntersectionId,
+            trafficInput: this.currTraffic,
+          },
+        })
+        .then((resp) => {
+          if (resp.data.setTraffic === "OK") {
+            this.$message({
+              showClose: true,
+              message: "修改成功！",
+              type: "success",
+            });
+          }
+        });
+      this.trafficDialogVisible = false;
     },
 
     parseRoadType(typename) {

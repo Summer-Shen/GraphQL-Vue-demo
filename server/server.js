@@ -121,7 +121,7 @@ var resolvers = {
   },
   Mutation: {
     setTraffic: (parent, args, context) => {
-      let intersection = context.datasource.roads.find(
+      let intersection = context.datasource.intersections.find(
         (i) => i.id === args.intersectionId
       );
       intersection.traffic = args.trafficInput;
