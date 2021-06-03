@@ -1,8 +1,15 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
-import installElementPlus from './plugins/element'
+import Vue from "vue";
+import ElementUI from "element-ui";
+import "element-ui/lib/theme-chalk/index.css";
+import App from "./App.vue";
+import { router } from "./router";
 
-const app = createApp(App)
-installElementPlus(app)
-app.use(router).mount('#app')
+Vue.config.productionTip = false;
+
+Vue.use(ElementUI);
+
+new Vue({
+  el: "#app",
+  router,
+  render: (h) => h(App),
+});

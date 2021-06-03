@@ -1,6 +1,7 @@
 <template>
-  <router-link to="/"></router-link>
-  <router-view v-if="isRouterAlive" />
+  <div id="app">
+    <router-view v-if="isRouterAlive" />
+  </div>
 </template>
 
 <script>
@@ -19,7 +20,7 @@ export default {
   methods: {
     reload() {
       this.isRouterAlive = false;
-      this.$nextTick(() => {
+      this.$nextTick(function () {
         this.isRouterAlive = true;
       });
     },
@@ -68,4 +69,3 @@ h1 {
   margin: 10px;
 }
 </style>
-
