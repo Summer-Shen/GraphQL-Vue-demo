@@ -34,6 +34,11 @@
         </el-table-column>
       </el-table>
     </el-main>
+    <el-footer>
+      <div>
+        这是一个示例项目，此处展现的数据仅作示意，不代表任何现实地点等。
+      </div>
+    </el-footer>
 
     <el-dialog
       title="修改交通流量"
