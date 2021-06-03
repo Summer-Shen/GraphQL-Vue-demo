@@ -34,17 +34,101 @@
         </el-table-column>
       </el-table>
     </el-main>
+
+    <el-dialog title="道路详情" :visible.sync="roadDialogVisible" width="30%">
+      <el-form style="overflow: hidden">
+        <el-form-item label="类型" size="mini">
+          {{ currRoad ? parseRoadType(currRoad.__typename) : "" }}
+        </el-form-item>
+        <el-form-item label="道路ID" size="mini">
+          {{ currRoad ? currRoad.id : "" }}
+        </el-form-item>
+        <el-form-item label="名称" size="mini">
+          {{ currRoad ? currRoad.name : "" }}
+        </el-form-item>
+        <el-form-item label="是否单行" size="mini">
+          {{ currRoad ? (currRoad.isOneway ? "单行" : "双向") : "" }}
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </el-container>
 </template>
 
 <script>
+import gql from "graphql-tag";
+
+const GET_INTERSECTIONS = gql`
+  query {
+    getIntersections {
+      id
+      name
+      traffic
+      roads {
+        id
+        name
+      }
+    }
+  }
+`;
+
+const GET_ROAD = gql`
+  query($id: String!) {
+    getRoad(roadId: $id) {
+      id
+      name
+      isOneway
+    }
+  }
+`;
+
 export default {
   name: "Home",
 
   data() {
     return {
       tableData: [],
+
+      roadDialogVisible: false,
+      currRoad: null,
+
+      trafficDialogVisible: false,
     };
+  },
+
+  apollo: {
+    tableData: {
+      query: GET_INTERSECTIONS,
+      update(data) {
+        return data.getIntersections;
+      },
+    },
+  },
+
+  methods: {
+    showRoad(roadId) {
+      this.roadDialogVisible = true;
+      this.$apollo
+        .query({
+          query: GET_ROAD,
+          variables: {
+            id: roadId,
+          },
+        })
+        .then((resp) => {
+          this.currRoad = resp.data.getRoad;
+        });
+    },
+
+    parseRoadType(typename) {
+      switch (typename) {
+        case "Highway":
+          return "高快速道路";
+        case "UrbanRoad":
+          return "市区道路";
+        default:
+          return "未知";
+      }
+    },
   },
 };
 </script>
