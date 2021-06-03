@@ -28,6 +28,9 @@ export default {
 </script>
 
 <style>
+h1 {
+  color: #303133;
+}
 .padded-small {
   padding: 8px;
 }
